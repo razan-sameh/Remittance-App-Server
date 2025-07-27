@@ -1,11 +1,11 @@
-import { Router } from "express";
-const router = Router();
-import { initializeApp, credential as _credential, messaging } from "firebase-admin";
+const express = require("express");
+const router = express.Router();
+const admin = require("firebase-admin");
 
 // Initialize Firebase
-import serviceAccount from "../firebase/serviceAccountKey.json";
-initializeApp({
-    credential: _credential.cert(serviceAccount),
+const serviceAccount = require("../firebase/serviceAccountKey.json");
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
 });
 
 let transactions = []; // Memory only – replace with DB later
@@ -43,7 +43,7 @@ router.patch("/:id", async (req, res) => {
 
     // Send Firebase notification
     if (tx.fcmToken) {
-        await messaging().send({
+        await admin.messaging().send({
             notification: {
                 title: "Transaction Update",
                 body: `Your transaction is now ${status}`,
@@ -55,4 +55,4 @@ router.patch("/:id", async (req, res) => {
     res.json(tx);
 });
 
-export default router;
+module.exports = router;

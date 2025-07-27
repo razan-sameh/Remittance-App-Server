@@ -1,15 +1,15 @@
-import express from "express";
-import { json } from "body-parser";
-import cors from "cors";
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use(json());
+app.use(bodyParser.json());
 
-import transactionsRoutes from "./routes/transactions";
-import kycRoutes from "./routes/kyc";
+const transactionsRoutes = require("./routes/transactions");
+const kycRoutes = require("./routes/kyc");
 
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/kyc", kycRoutes);
