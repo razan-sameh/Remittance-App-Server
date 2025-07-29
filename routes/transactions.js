@@ -11,7 +11,7 @@ admin.initializeApp({
 let transactions = []; // Memory only – replace with DB later
 
 // Send Money
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
     const { sender, receiver, amount, fcmToken } = req.body;
     const newTransaction = {
         id: transactions.length + 1,
@@ -24,7 +24,29 @@ router.post("/", (req, res) => {
     };
     transactions.push(newTransaction);
     res.status(201).json(newTransaction);
+    await admin.messaging().send({
+        notification: {
+            title: "Transaction Created",
+            body: `Your transaction to ${receiver} has been Created.`,
+        },
+        token: newTransaction.fcmToken,
+    });
+    // Automatically update the transaction after delay
+    setTimeout(async () => {
+        newTransaction.status = "Completed";
+
+        if (newTransaction.fcmToken) {
+            await admin.messaging().send({
+                notification: {
+                    title: "Transaction Completed",
+                    body: `Your transaction to ${receiver} has been completed.`,
+                },
+                token: newTransaction.fcmToken,
+            });
+        }
+    }, 10000); // 10 seconds later
 });
+
 
 // Get all transactions
 router.get("/", (req, res) => {
